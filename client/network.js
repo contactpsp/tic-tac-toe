@@ -1,5 +1,14 @@
 const wsUri = "ws://localhost:8000/"
 const websocket = new WebSocket(wsUri)
+websocket.onopen = function (event) {
+    console.log(event);
+}
+websocket.onclose = function (event) {
+    console.log(event)
+}
+websocket.onerror = function (event){
+    console.log(event)
+}
 websocket.onmessage = function (event) {
     const message = JSON.parse(event.data)
     console.log("Received from server:", message)
