@@ -3,6 +3,7 @@ function place(spot){
         id: clientToServerMessageIds.PLACE_MARK,
         spot: spot
     }
+    console.log("Placing at" + spot);
     websocket.send(JSON.stringify(message))
 }
 
