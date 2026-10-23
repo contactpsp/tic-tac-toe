@@ -22,18 +22,22 @@ function CreateGame() {
         id: clientToServerMessageIds.CREATE_GAME,
         cookie: cookie
     }
+    console.log("creating game")
     websocket.send(JSON.stringify(message));
 }
 
 function GetGameCode() {
+    console.log("getting game code")
     return document.getElementById("gamecode").value;
 }
 
 function JoinGame() {
+    console.log("Joining game")
     JoinGameWithCode(GetGameCode())
 }
 
 function JoinGameWithCode(code) {
+    console.log("joining game with " + code)
     var message = {
         id: clientToServerMessageIds.JOIN_GAME,
         cookie: cookie,
@@ -43,6 +47,7 @@ function JoinGameWithCode(code) {
 }
 
 function Save(canAlert = false) {
+    console.log("saving cookies")
     var temp1 = String(document.getElementById("username").value);
     if (temp1.length < 3 && temp1.length > 16) {
         console.error("invalid name");
@@ -58,6 +63,7 @@ function Save(canAlert = false) {
 }
 
 function Load() {
+    console.log("loading cookies")
     cookie = document.cookie;
     if(cookie.length <  1 || document.cookie.length < 1) {
         username = "cookie"
