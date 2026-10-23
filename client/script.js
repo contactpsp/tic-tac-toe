@@ -1,10 +1,11 @@
 var profile = 0;
+var cookie = document.cookie;
 var username = "cookie";
-var pfp = Object.keys(pfps)[5];
+var pfp = "TEAMRED"
 let params = new URLSearchParams(document.location.search);
 
 function Start() {
-    Object.keys(pfps).forEach(key => {
+    pfps.keys().forEach(key => {
         var option = document.createElement("option");
         option.text = key;
         document.getElementById("pfp").add(option);
@@ -17,9 +18,9 @@ function Start() {
 }
 
 function CreateGame() {
-    const message = {
+    var message = {
         id: clientToServerMessageIds.CREATE_GAME,
-        cookie: document.cookie
+        cookie: cookie
     }
     websocket.send(JSON.stringify(message));
 }
@@ -33,9 +34,9 @@ function JoinGame() {
 }
 
 function JoinGameWithCode(code) {
-    const message = {
+    var message = {
         id: clientToServerMessageIds.JOIN_GAME,
-        cookie: document.cookie,
+        cookie: cookie,
         code: code,
     }
     websocket.send(JSON.stringify(message));
@@ -50,18 +51,22 @@ function Save() {
     }
     pfp = document.getElementById("pfp").value;
     username = temp1;
-    document.cookie = JSON.stringify({ username: username, pfp: pfp })
+    cookie = JSON.stringify({ username: username, pfp: pfp })
+    document.cookie = cookie
     alert("saved")
     UpdateHTML(true);
 }
 
 function Load() {
-    if(document.cookie.length < 1) {
+    cookie = document.cookie;
+    if(cookie.length <  1 || document.cookie.length < 1) {
+        username = "cookie"
+        pfp = "TEAMRED"
         UpdateHTML(true);
         Save();
         return;
     }
-    json = JSON.parse(document.cookie);
+    json = JSON.parse(cookie);
     username = json["username"]
     pfp = json["pfp"]
     UpdateHTML(true);
@@ -72,7 +77,7 @@ function UpdateHTML(updateCrucial = false){
         document.getElementById("username").value = username;
         document.getElementById("pfp").value = pfp;
     }
-    document.getElementById("mepfp").src = pfps[pfp];
+    document.getElementById("mepfp").src = pfps.get(pfp);
     document.getElementById("me").innerText = username;
 }
 
