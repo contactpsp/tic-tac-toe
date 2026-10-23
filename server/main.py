@@ -31,10 +31,10 @@ async def handler(connection):
                 case ClientToServerMessageIds.JOIN_GAME:
                     print("Client requested to join a game:", message["cookie"], "with code:", message["code"])
                     code = message["code"]
-                    if code not in rooms:
+                    if code not in rooms.keys():
                         await connection.send(json.dumps({
                             "id": ServerToClientMessageIds.ERROR,
-                            "message": "Room not found"
+                            "error": "Room not found"
                         }))
                         pass
                     room = rooms[code];
@@ -51,12 +51,14 @@ async def handler(connection):
                     }))
                     await sendGameStart(room)
                 case ClientToServerMessageIds.PLACE_MARK:
+                        if connection not in players.keys():
+                            pass
                         myPlayer = players[connection];
                         myRoom = myPlayer.room;
                         if myRoom.game.canPlay(myPlayer.role):
                             myRoom.game.placeMark(myPlayer.role, message["spot"]);
                         else:
-                            await sendError("invalid move")
+                            await sendError(connection, "invalid move")
                             pass;
                         if(myRoom.game.validateBoard(myPlayer.role)):
                             myRoom.status = "complete"
@@ -64,7 +66,7 @@ async def handler(connection):
                         else:
                             await sendUpdateBoard(room);
         except websockets.exceptions.ConnectionClosed:
-            if(connection in players):
+            if (connection not in players.keys()):
                 pass
             player = players[connection]
             if(player.room.onDisconnect(player)):
@@ -124,7 +126,7 @@ def start():
 
 def CreateRoom(status):
     code = str(uuid.uuid4())[:6]
-    if code not in rooms:
+    if code not in rooms.keys():
         room = Room(code, status)
         rooms[code] = room
         return room
