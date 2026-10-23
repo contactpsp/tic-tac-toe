@@ -36,7 +36,11 @@ websocket.onmessage = function (event) {
             updateBoard(message)
             break;
         case serverToClientMessageIds.GAME_ENDED:
-            alert("GAME HAS ENDED!\n" + message.winner)
+            var rematch = confirm("GAME HAS ENDED!\n" + message.winner + "\n Rematch?")
+            if(!rematch){
+                window.location.href = "index.html"
+            }
+            websocket.send(JSON.stringify({id:clientToServerMessageIds.REQUEST_REMATCH, rematch: rematch}));
             break;
         case serverToClientMessageIds.ERROR:
             console.error("Error from server:", message.error)

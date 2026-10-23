@@ -38,6 +38,7 @@ const clientToServerMessageIds = {
     CREATE_GAME: 0,
     JOIN_GAME: 1,
     PLACE_MARK: 2,
+    REQUEST_REMATCH: 3
 }
 const serverToClientMessageIds = {
     ERROR: -1,

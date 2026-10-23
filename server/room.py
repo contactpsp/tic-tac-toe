@@ -12,6 +12,7 @@ class Room:
         self.hostPlayer = Player(None, None, None, None)
         self.guestPlayer = Player(None, None, None, None)
         self.game = Game()
+        self.rematch = 0
 
     def getOppositePlayer(self, player):
         if player.isHost():

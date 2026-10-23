@@ -73,19 +73,30 @@ async def handler(connection):
                         else:
                             await sendError(connection, "invalid move")
                             pass;
-                        
+                case ClientToServerMessageIds.REQUEST_REMATCH:
+                    if connection not in players.keys():
+                        pass
+                    myPlayer = players[connection]
+                    if (message["rematch"]):
+                        myPlayer.room.rematch += 1
+                        if(myPlayer.room.rematch >= 2):
+                            await sendGameStart(myPlayer.room)
+                    else:
+                        myPlayer.room.rematch = 0;
+                        closeRoom(myPlayer.room.code)
+                        sendError(connection, "game closed, rematch declined :(")
         except websockets.exceptions.ConnectionClosed:
             if (connection not in players.keys()):
-                pass
+                break;
             player = players[connection]
-            if(player.room.onDisconnect(player)):
-                rooms.pop(room.code)
+            if(player.room != None and player.room.onDisconnect(player)):
+                closeRoom(player.room.code)
             players.pop(connection)
             await connection.close()
             break;
         except Exception as e:
             print(e)
-            pass;
+            break;
     
     print("Client disconnected", connection.remote_address)
 
@@ -98,6 +109,7 @@ async def sendGameStart(room):
     room.game.board =  [0, 0, 0, 
                        0, 0, 0, 
                        0, 0, 0]
+    room.rematch = 0
     await sendUpdateBoard(room)
     await room.broadcastGameStart();
     
@@ -127,7 +139,6 @@ async def sendUpdateBoard(room):
 def start():
     asyncio.run(startAsync())
 
-
 def CreateRoom(status):
     code = str(uuid.uuid4())[:6]
     if code not in rooms.keys():
@@ -137,5 +148,8 @@ def CreateRoom(status):
     else:
         return CreateRoom(status)
 
-
+def closeRoom(code):
+    rooms[code] = None
+    rooms.pop(code)
+  
 start();
