@@ -9,4 +9,6 @@ class ServerToClientMessageIds(IntEnum):
     ERROR = -1,
     GAME_CREATED = 0,
     GAME_JOINED = 1,
-    UPDATE_BOARD = 2,
+    GAME_STARTED = 2,
+    UPDATE_BOARD = 3,
+    GAME_ENDED = 4,

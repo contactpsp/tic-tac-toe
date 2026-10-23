@@ -42,7 +42,7 @@ function JoinGameWithCode(code) {
     websocket.send(JSON.stringify(message));
 }
 
-function Save() {
+function Save(canAlert = false) {
     var temp1 = String(document.getElementById("username").value);
     if (temp1.length < 3 && temp1.length > 16) {
         console.error("invalid name");
@@ -53,7 +53,7 @@ function Save() {
     username = temp1;
     cookie = JSON.stringify({ username: username, pfp: pfp })
     document.cookie = cookie
-    alert("saved")
+    if(canAlert)alert("Account Details Saved")
     UpdateHTML(true);
 }
 
@@ -63,7 +63,7 @@ function Load() {
         username = "cookie"
         pfp = "TEAMRED"
         UpdateHTML(true);
-        Save();
+        Save(false);
         return;
     }
     json = JSON.parse(cookie);
