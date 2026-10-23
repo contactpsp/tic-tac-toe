@@ -36,7 +36,7 @@ websocket.onmessage = function (event) {
             updateBoard(message)
             break;
         case serverToClientMessageIds.GAME_ENDED:
-            alert("GAME HAS ENDED")
+            alert("GAME HAS ENDED!\n" + message.winner)
             break;
         case serverToClientMessageIds.ERROR:
             console.error("Error from server:", message.error)

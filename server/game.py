@@ -9,17 +9,23 @@ class Game:
     def placeMark(self, player, spot):
         if(self.canPlay(player)):
             if(self.board[spot] != 0):
-                return;
+                return False;
             self.board[spot] = player
             if self.turn == 1:
                 self.turn = 2;
             else:
                 self.turn = 1;
+            return True;
     def validateBoard(self, player):
         if(self.checkForWin()  == player):
             print("player ", player, " won")
-            return True
-        return False
+            return "Win"
+        else:
+            x = 0
+            for i in range(9):
+                if(self.board[i] != 0): x += 1
+            if(x >= 9): return "Draw"
+        return ""
     
     def checkForWin(self):    
         def checkRow(offset, player):

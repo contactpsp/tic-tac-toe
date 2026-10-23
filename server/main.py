@@ -37,34 +37,43 @@ async def handler(connection):
                             "error": "Room not found"
                         }))
                         pass
-                    room = rooms[code];
-                    if(room.isFull()):
-                        print("room full")
-                        await sendError(connection, "room full")
-                        pass
-                    myPlayer = Player(connection, str(message["cookie"]), 2, room);
-                    room.guestPlayer = myPlayer
-                    players[connection] = myPlayer
-                    await connection.send(json.dumps({
-                        "id": ServerToClientMessageIds.GAME_JOINED,
-                        "code": code
-                    }))
-                    await sendGameStart(room)
+                    else:
+                        room = rooms[code];
+                        if(room.isFull()):
+                            print("room full")
+                            await sendError(connection, "room full")
+                            pass
+                        elif(room.hostPlayer.connection == connection):
+                            await sendError(connection, "you cannot join the same room as you are in...\nah cheeky boy");
+                            pass
+                        else:
+                            myPlayer = Player(connection, str(message["cookie"]), 2, room);
+                            room.guestPlayer = myPlayer
+                            players[connection] = myPlayer
+                            await connection.send(json.dumps({
+                                "id": ServerToClientMessageIds.GAME_JOINED,
+                                "code": code
+                            }))
+                            await sendGameStart(room)
                 case ClientToServerMessageIds.PLACE_MARK:
                         if connection not in players.keys():
                             pass
                         myPlayer = players[connection];
                         myRoom = myPlayer.room;
-                        if myRoom.game.canPlay(myPlayer.role):
-                            myRoom.game.placeMark(myPlayer.role, message["spot"]);
+                        if myRoom.game.placeMark(myPlayer.role, message["spot"]):
+                            match myRoom.game.validateBoard(myPlayer.role):
+                                case "Win":
+                                    myRoom.status = "complete"
+                                    await sendGameEnd(room, json.loads(myPlayer.id)["username"] + "\n got the victory royale")
+                                case "Draw":
+                                    myRoom.status = "complete"
+                                    await sendGameEnd(room, "DRAW!\n get rekt")
+                                case _:
+                                    await sendUpdateBoard(room)
                         else:
                             await sendError(connection, "invalid move")
                             pass;
-                        if(myRoom.game.validateBoard(myPlayer.role)):
-                            myRoom.status = "complete"
-                            await sendGameEnd(room, myPlayer)
-                        else:
-                            await sendUpdateBoard(room);
+                        
         except websockets.exceptions.ConnectionClosed:
             if (connection not in players.keys()):
                 pass
@@ -72,16 +81,11 @@ async def handler(connection):
             if(player.room.onDisconnect(player)):
                 rooms.pop(room.code)
             players.pop(connection)
-            break;         
-        except Exception as e:
-            print(e)
-            # await connection.send(json.dumps({
-            #                             "id": ServerToClientMessageIds.ERROR,
-            #                             "message": "Room not found"
-            #                         }))
-            players[connection] = None
             await connection.close()
             break;
+        except Exception as e:
+            print(e)
+            pass;
     
     print("Client disconnected", connection.remote_address)
 
@@ -107,7 +111,7 @@ async def sendGameEnd(room, winner):
         "id": ServerToClientMessageIds.GAME_ENDED,
         "board": room.game.board,
         "status": room.status,
-        "winner": winner.id
+        "winner": winner
     })
     await room.broadcast(dump)
 
