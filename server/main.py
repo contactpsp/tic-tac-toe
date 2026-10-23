@@ -19,8 +19,9 @@ async def handler(connection):
             match message["id"]:
                 case ClientToServerMessageIds.CREATE_GAME:
                     print("Client requested to create a game:", message["cookie"])
-                    room = CreateRoom("waiting")
+                    room = CreateRoom()
                     myPlayer =  Player(connection, message["cookie"], 1, room)
+                    myPlayer.isValid = True
                     room.hostPlayer = myPlayer
                     players[connection] = myPlayer;
                     await connection.send(json.dumps({
@@ -48,6 +49,7 @@ async def handler(connection):
                             pass
                         else:
                             myPlayer = Player(connection, str(message["cookie"]), 2, room);
+                            myPlayer.isValid = True
                             room.guestPlayer = myPlayer
                             players[connection] = myPlayer
                             await connection.send(json.dumps({
@@ -63,10 +65,8 @@ async def handler(connection):
                         if myRoom.game.placeMark(myPlayer.role, message["spot"]):
                             match myRoom.game.validateBoard(myPlayer.role):
                                 case "Win":
-                                    myRoom.status = "complete"
                                     await sendGameEnd(room, json.loads(myPlayer.id)["username"] + "\n got the victory royale")
                                 case "Draw":
-                                    myRoom.status = "complete"
                                     await sendGameEnd(room, "DRAW!\n get rekt")
                                 case _:
                                     await sendUpdateBoard(room)
@@ -83,12 +83,17 @@ async def handler(connection):
                             await sendGameStart(myPlayer.room)
                     else:
                         myPlayer.room.rematch = 0;
-                        closeRoom(myPlayer.room.code)
-                        sendError(connection, "game closed, rematch declined :(")
+                        #closeRoom(myPlayer.room.code)
+                        #sendError(connection, "game closed, rematch declined :(")
+                        sendError(myPlayer.room.getOppositePlayer(myPlayer).connection, "rematch declined :(");
+                        myPlayer.room.onDisconnect(myPlayer)
+                        myPlayer.room.wait()
+                        
         except websockets.exceptions.ConnectionClosed:
             if (connection not in players.keys()):
                 break;
             player = players[connection]
+            player.isValid = False
             if(player.room != None and player.room.onDisconnect(player)):
                 closeRoom(player.room.code)
             players.pop(connection)
@@ -106,6 +111,7 @@ async def startAsync():
         await asyncio.Future()
 
 async def sendGameStart(room):
+    room.play()
     room.game.board =  [0, 0, 0, 
                        0, 0, 0, 
                        0, 0, 0]
@@ -119,12 +125,14 @@ async def sendError(connection, error):
     await connection.send(json.dumps({"id": ServerToClientMessageIds.ERROR, "error": error}))
 
 async def sendGameEnd(room, winner):
+    room.complete()
     dump = json.dumps({
         "id": ServerToClientMessageIds.GAME_ENDED,
         "board": room.game.board,
         "status": room.status,
         "winner": winner
     })
+    print(dump)
     await room.broadcast(dump)
 
 async def sendUpdateBoard(room):
@@ -134,19 +142,21 @@ async def sendUpdateBoard(room):
         "turn": room.game.turn,
         "status": room.status,
     })
+    print(json.dumps({"room": room.code, "dump": dump}))
     await room.broadcast(dump)
 
 def start():
     asyncio.run(startAsync())
 
-def CreateRoom(status):
+def CreateRoom():
     code = str(uuid.uuid4())[:6]
     if code not in rooms.keys():
-        room = Room(code, status)
+        room = Room(code, "created")
         rooms[code] = room
+        room.wait()
         return room
     else:
-        return CreateRoom(status)
+        return CreateRoom()
 
 def closeRoom(code):
     rooms[code] = None

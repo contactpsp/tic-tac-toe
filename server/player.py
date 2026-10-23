@@ -4,6 +4,7 @@ class Player:
         self.id = str(_id)
         self.role = _role
         self.room = _room
+        self.isValid = False
 
     def isHost(self):
         return self.room.hostPlayer == self

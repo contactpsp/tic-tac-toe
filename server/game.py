@@ -8,7 +8,7 @@ class Game:
 
     def placeMark(self, player, spot):
         if(self.canPlay(player)):
-            if(self.board[spot] != 0):
+            if(self.board[spot] != 0 or len(self.board) < spot):
                 return False;
             self.board[spot] = player
             if self.turn == 1:
@@ -37,7 +37,7 @@ class Game:
         def checkColumn(player):
             valid = False
             for i in range(3):
-                if self.board[0+i] == player and self.board[3+i] == player and self.board[7+i] == player:
+                if self.board[0+i] == player and self.board[3+i] == player and self.board[6+i] == player:
                     valid = True
             return valid;
         def checkDiagonal(player):

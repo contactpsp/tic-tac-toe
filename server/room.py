@@ -14,6 +14,15 @@ class Room:
         self.game = Game()
         self.rematch = 0
 
+    def complete(self):
+        self.status = "complete";
+
+    def play(self):
+        self.status = "playing";
+        
+    def wait(self):
+        self.status = "waiting";
+
     def getOppositePlayer(self, player):
         if player.isHost():
             return self.guestPlayer;
@@ -33,14 +42,14 @@ class Room:
             if(player.isHost()):
                 self.hostPlayer = self.guestPlayer
         else:
-            self.hostPlayer.connection = None
+            self.hostPlayer.isValid = False
             self.hostPlayer = None
-        self.guestPlayer.connection = None
+        self.guestPlayer.isValid = False
         self.guestPlayer = None
-        return self.hostPlayer == None and self.guestPlayer == None
+        return self.hostPlayer.isValid == False and self.guestPlayer.isValid == False
     
     def isFull(self):
-        return self.hostPlayer.connection != None and self.guestPlayer.connection != None
+        return self.hostPlayer.isValid == True and self.guestPlayer.isValid == True
 
     async def broadcast(self, message):
         await self.hostPlayer.connection.send(message);
