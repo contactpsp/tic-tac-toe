@@ -55,6 +55,14 @@ class Room:
     async def broadcast(self, message):
         await self.hostPlayer.connection.send(message);
         await self.guestPlayer.connection.send(message);
+        
+    async def swapTurns(self):
+        if(self.game.canPlay(self.hostPlayer.role)):
+            await self.hostPlayer.connection.send(json.dumps({"id":ServerToClientMessageIds.ENABLE_BOARD}))
+            await self.guestPlayer.connection.send(json.dumps({"id":ServerToClientMessageIds.DISABLE_BOARD}))
+        else:
+            await self.guestPlayer.connection.send(json.dumps({"id":ServerToClientMessageIds.ENABLE_BOARD}))
+            await self.hostPlayer.connection.send(json.dumps({"id":ServerToClientMessageIds.DISABLE_BOARD}))
 
     async def broadcastGameStart(self):
         await self.hostPlayer.connection.send(json.dumps({"id": ServerToClientMessageIds.GAME_STARTED, "opponent": self.guestPlayer.id}))

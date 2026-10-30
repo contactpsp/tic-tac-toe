@@ -12,9 +12,7 @@ function Start() {
     });
     
     Load();
-    if (params.has("code")) {
-        JoinGame(params.get("code"))
-    }
+    disableBoard();
 }
 
 function CreateGame() {
@@ -43,6 +41,14 @@ function LeaveGame(){
     websocket.send(JSON.stringify(message));
 }
 
+function CopyInviteLink(){
+    navigator.clipboard.writeText(inviteURL.toString());
+    alert("Copied URL");
+}
+function CopyInviteCode(){
+    navigator.clipboard.writeText(inviteCode.toString());
+    alert("Copied Invite Code");
+}
 function JoinGameWithCode(code) {
     console.log("joining game with " + code)
     var message = {

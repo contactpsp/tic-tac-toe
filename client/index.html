@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Tic-Tac-Toe</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body onload="Start()">
     <div class="sidenav" id="sidenav">
-        <h2>alpha v0.0.1</h2>
+        <h2>release v1.0.0</h2>
         <a href="index.html" style="color: white;">
             <h1>Tic-Tac-Toe</h1>
             <button>Home</button>
@@ -22,6 +22,8 @@
             <label>Invite Code</label>
             <input id="gamecode" type="password" placeholder="Enter Code (max 6)" maxlength="6">
             <button onclick="JoinGame()">Join Game</button>
+            <button onclick="CopyInviteLink()">Copy Invite Link</button>
+            <button onclick="CopyInviteCode()">Copy Invite Code</button>
             <button onclick="LeaveGame()">Leave Game</button>
         </div>
 
@@ -49,18 +51,16 @@
             <label id="op-u">opponent</label>
                 <img width="64" height="64" id="op-pfp" src="assets/ui/profiles/MKDSEmblemTeamBlue.png">
         </div>
-
-        <img src="assets/ui/board.png" width="150px">
         <div class="board" id="board">
-            <button onclick="place(0)">1</button>
-            <button onclick="place(1)">2</button>
-            <button onclick="place(2)">3</button>
-            <button onclick="place(3)">4</button>
-            <button onclick="place(4)">5</button>
-            <button onclick="place(5)">6</button>
-            <button onclick="place(6)">7</button>
-            <button onclick="place(7)">8</button>
-            <button onclick="place(8)">9</button>
+            <button class="square" onclick="place(0)"></button>
+            <button class="square" onclick="place(1)"></button>
+            <button class="square" onclick="place(2)"></button>
+            <button class="square" onclick="place(3)"></button>
+            <button class="square" onclick="place(4)"></button>
+            <button class="square" onclick="place(5)"></button>
+            <button class="square" onclick="place(6)"></button>
+            <button class="square" onclick="place(7)"></button>
+            <button class="square" onclick="place(8)"></button>
         </div>
 
         <div>

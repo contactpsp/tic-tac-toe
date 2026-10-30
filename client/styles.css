@@ -68,10 +68,22 @@ body {
 }
 
 .board {
-    position: fixed;
     display: grid;
-    grid-template-columns: max-content max-content max-content;
-    grid-template-rows: max-content max-content max-content;
+    grid-template-columns: auto auto auto;
+}
+.board button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #D3D3D3;
+    background-color: #F5F5F5;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.board button:disabled{
+    background-color: gray;
 }
 
 @media screen and (max-height: 450px) {

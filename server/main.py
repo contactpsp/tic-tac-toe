@@ -10,7 +10,7 @@ rooms = {}
 players = {}
 async def handler(connection):
     print("Client connected", connection.remote_address)
-    players[connection] = (Player)
+    players[connection] = Player(connection, "", 0, None)
     while True:
         try:
             data = await connection.recv()
@@ -40,16 +40,16 @@ async def handler(connection):
                             "id": ServerToClientMessageIds.ERROR,
                             "error": "Room not found"
                         }))
-                        pass
+                        continue
                     else:
                         room = rooms[code];
                         if(room.isFull()):
                             print("room full")
                             await sendError(connection, "room full")
-                            pass
+                            continue
                         elif(room.hostPlayer.connection == connection):
-                            await sendError(connection, "you cannot join the same room as you are in...\nah cheeky boy");
-                            pass
+                            await sendError(connection, "you cannot join the same room as you are in...nah cheeky boy");
+                            continue
                         else:
                             myPlayer = Player(connection, str(message["cookie"]), 2, room);
                             myPlayer.isValid = True
@@ -61,8 +61,9 @@ async def handler(connection):
                             }))
                             await sendGameStart(room)
                 case ClientToServerMessageIds.PLACE_MARK:
-                        if connection not in players.keys():
-                            pass
+                        if inRoom(connection) == False:
+                            await sendError(connection, "you are not in a room")
+                            continue
                         myPlayer = players[connection];
                         myRoom = myPlayer.room;
                         if myRoom.game.placeMark(myPlayer.role, message["spot"]):
@@ -77,10 +78,8 @@ async def handler(connection):
                             await sendError(connection, "invalid move")
                             pass;
                 case ClientToServerMessageIds.REQUEST_REMATCH:
-                    if connection not in players.keys():
-                        pass
                     myPlayer = players[connection]
-                    if (message["rematch"]):
+                    if (message["rematch"] == True):
                         myPlayer.room.rematch += 1
                         if(myPlayer.room.rematch >= 2):
                             await sendGameStart(myPlayer.room)
@@ -88,7 +87,7 @@ async def handler(connection):
                         myPlayer.room.rematch = 0;
                         #closeRoom(myPlayer.room.code)
                         #sendError(connection, "game closed, rematch declined :(")
-                        sendError(myPlayer.room.getOppositePlayer(myPlayer).connection, "rematch declined :(");
+                        await sendError(myPlayer.room.getOppositePlayer(myPlayer).connection, "rematch declined :(");
                         myPlayer.room.onDisconnect(myPlayer)
                         myPlayer.room.wait()
                         
@@ -103,9 +102,11 @@ async def handler(connection):
     
     print("Client disconnected", connection.remote_address)
 
+def inRoom(connection):
+    return connection in players.keys() and players[connection] != None and players[connection].room != None
+
 def handleDisconnect(connection):
-        if (connection not in players.keys()):
-            return;
+        if inRoom(connection) == False: return
         player = players[connection]
         if(player.room != None and player.room.onDisconnect(player)):
             closeRoom(player.room.code)
@@ -151,6 +152,7 @@ async def sendUpdateBoard(room):
     })
     print(json.dumps({"room": room.code, "dump": dump}))
     await room.broadcast(dump)
+    await room.swapTurns()
 
 def start():
     asyncio.run(startAsync())

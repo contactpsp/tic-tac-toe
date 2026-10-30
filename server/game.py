@@ -27,32 +27,27 @@ class Game:
             if(x >= 9): return "Draw"
         return ""
     
+    
     def checkForWin(self):    
-        def checkRow(offset, player):
-            valid = 0
-            for i in range(3):
-                if (self.board[i+offset] == player):
-                    valid += 1
-            return valid == 3
-        def checkColumn(player):
-            valid = False
-            for i in range(3):
-                if self.board[0+i] == player and self.board[3+i] == player and self.board[6+i] == player:
-                    valid = True
-            return valid;
-        def checkDiagonal(player):
-            valid1 = self.board[0] == player and self.board[4] == player and self.board[8];
-            valid2 = self.board[2] == player and self.board[4] == player and self.board[6]
-            return valid1 or valid2;
-        def checkPlayer(player):
-            valid1 =  checkRow(0, player) or checkRow(3, player) or checkRow(6, player)
-            valid2 = checkColumn(player)
-            valid3 = checkDiagonal(player)
-            return valid1 or valid2 or valid3
+        winCombos= [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ]
+        def checkWin(self, currentPlayer):
+            for x in winCombos:
+                if (self.board[x[0]] == currentPlayer and self.board[x[1]] == currentPlayer and self.board[x[2]] == currentPlayer):
+                    return True
+            return False
         myPlayer = 0
-        if(checkPlayer(1)):
+        if(checkWin(self, 1)):
             myPlayer = 1
-        elif(checkPlayer(2)):
+        elif(checkWin(self, 2)):
             myPlayer = 2
         return myPlayer
 

@@ -14,3 +14,5 @@ class ServerToClientMessageIds(IntEnum):
     GAME_STARTED = 2,
     UPDATE_BOARD = 3,
     GAME_ENDED = 4,
+    ENABLE_BOARD = 5,
+    DISABLE_BOARD = 6,
