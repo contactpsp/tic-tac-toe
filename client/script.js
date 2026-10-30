@@ -36,6 +36,13 @@ function JoinGame() {
     JoinGameWithCode(GetGameCode())
 }
 
+function LeaveGame(){
+    var message = {
+        id: clientToServerMessageIds.DISCONNECT,
+    }
+    websocket.send(JSON.stringify(message));
+}
+
 function JoinGameWithCode(code) {
     console.log("joining game with " + code)
     var message = {

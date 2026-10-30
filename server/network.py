@@ -5,6 +5,7 @@ class ClientToServerMessageIds(IntEnum):
     JOIN_GAME = 1,
     PLACE_MARK = 2,
     REQUEST_REMATCH = 3,
+    DISCONNECT = 4,
 
 class ServerToClientMessageIds(IntEnum):
     ERROR = -1,

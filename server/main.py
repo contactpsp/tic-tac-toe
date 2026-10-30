@@ -17,6 +17,9 @@ async def handler(connection):
             print("Received from client:", data)
             message = json.loads(data)
             match message["id"]:
+                case ClientToServerMessageIds.DISCONNECT:
+                    handleDisconnect(connection);
+                    await sendError(connection, "you have been disconnected")
                 case ClientToServerMessageIds.CREATE_GAME:
                     print("Client requested to create a game:", message["cookie"])
                     room = CreateRoom()
@@ -90,12 +93,7 @@ async def handler(connection):
                         myPlayer.room.wait()
                         
         except websockets.exceptions.ConnectionClosed:
-            if (connection not in players.keys()):
-                break;
-            player = players[connection]
-            player.isValid = False
-            if(player.room != None and player.room.onDisconnect(player)):
-                closeRoom(player.room.code)
+            handleDisconnect(connection)
             players.pop(connection)
             await connection.close()
             break;
@@ -104,6 +102,15 @@ async def handler(connection):
             break;
     
     print("Client disconnected", connection.remote_address)
+
+def handleDisconnect(connection):
+        if (connection not in players.keys()):
+            return;
+        player = players[connection]
+        if(player.room != None and player.room.onDisconnect(player)):
+            closeRoom(player.room.code)
+        else:
+            player.isValid = False
 
 async def startAsync():
     async with websockets.serve(handler, "localhost", 8000):

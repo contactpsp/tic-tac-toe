@@ -9,8 +9,8 @@ class Room:
     def __init__(self, _code, _status):
         self.code = _code
         self.status = _status
-        self.hostPlayer = Player(None, None, None, None)
-        self.guestPlayer = Player(None, None, None, None)
+        self.hostPlayer = None
+        self.guestPlayer = None
         self.game = Game()
         self.rematch = 0
 
@@ -43,9 +43,7 @@ class Room:
                 self.hostPlayer = self.guestPlayer
         else:
             self.hostPlayer.isValid = False
-            self.hostPlayer = None
         self.guestPlayer.isValid = False
-        self.guestPlayer = None
         return self.hostPlayer.isValid == False and self.guestPlayer.isValid == False
     
     def isFull(self):
