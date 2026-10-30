@@ -43,11 +43,14 @@ class Room:
                 self.hostPlayer = self.guestPlayer
         else:
             self.hostPlayer.isValid = False
-        self.guestPlayer.isValid = False
-        return self.hostPlayer.isValid == False and self.guestPlayer.isValid == False
+        self.guestPlayer = None
+        return self.hostPlayer.isValid == False
     
     def isFull(self):
-        return self.hostPlayer.isValid == True and self.guestPlayer.isValid == True
+        if(self.hostPlayer != None and self.guestPlayer != None):
+            return self.hostPlayer.isValid == True and self.guestPlayer.isValid == True
+        else:
+            return False;
 
     async def broadcast(self, message):
         await self.hostPlayer.connection.send(message);
