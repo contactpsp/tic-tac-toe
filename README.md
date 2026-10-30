@@ -1,5 +1,6 @@
 # hey 👏
 
+<a href="docs/architecture.md"> Architecture</a>
 
 # Credits/Attributes
 
