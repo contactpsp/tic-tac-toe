@@ -39,6 +39,7 @@ function LeaveGame(){
         id: clientToServerMessageIds.DISCONNECT,
     }
     websocket.send(JSON.stringify(message));
+    disableBoard();
 }
 
 function CopyInviteLink(){
